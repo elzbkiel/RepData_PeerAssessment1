@@ -1,26 +1,16 @@
----
-title: "PA1_template"
-author: "elzbkiel"
-date: "July 17, 2016"
-output: html_document
----
+##PA1_template
+##Reproducible Research - Week 2  
+  
 
+###Load libraries
 
 ```r
-knitr::opts_chunk$set(fig.width=6, fig.height=3, fig.path='figs/',
-                      echo=TRUE, warning=FALSE, message=FALSE)
-```
-
-Load libraries
-
-```r
-if (!require("ggplot2")) install.packages("ggplot2")
-if (!require("timeDate")) install.packages("timeDate")
 library(ggplot2)
 library(timeDate)
+library(knitr)
 ```
 
-Read data file activity.zip into data frame "activity"
+###Read data file activity.zip into data frame "activity"
 
 ```r
 mydir <- "RepData_PeerAssessment1"
@@ -36,15 +26,15 @@ myfile
 activity <- read.csv(unzip(myfile), header = TRUE, sep = ",")
 ```
 
-What is mean total number of steps taken per day?
+###What is mean total number of steps taken per day?
     
-Calculate sum of steps per day
+####Calculate sum of steps per day
 
 ```r
 steps_per_day <- aggregate(steps ~ date, activity, sum)
 ```
 
-Plot histogram
+####Plot histogram steps per day
 
 ```r
 ggplot(steps_per_day, aes(x = steps)) +
@@ -55,9 +45,9 @@ ggplot(steps_per_day, aes(x = steps)) +
              theme_bw()
 ```
 
-![plot of chunk histogram steps_per_day](figs/histogram steps_per_day-1.png)
+![plot of chunk histogram steps_per_day](figure/histogram steps_per_day-1.png)
 
-Calculate mean and median
+####Calculate mean and median of steps per day
 
 ```r
 steps_mean <- mean(steps_per_day$steps, na.rm = TRUE)
@@ -82,9 +72,9 @@ Mean: 10766.1886792453
 Median: 10765  
   
   
-What is the average daily activity pattern?
+###What is the average daily activity pattern?
 
-Calculate number of steps per interval
+####Calculate average number of steps per interval
 
 ```r
 steps_per_interval <- aggregate(activity$steps,
@@ -95,7 +85,7 @@ steps_per_interval <- aggregate(activity$steps,
 colnames(steps_per_interval) <- c("interval", "steps")
 ```
 
-Plot steps_per_interval
+####Plot steps_per_interval
 
 ```r
 ggplot(steps_per_interval, aes(x = interval, y = steps)) +
@@ -106,9 +96,9 @@ ggplot(steps_per_interval, aes(x = interval, y = steps)) +
              theme_bw()
 ```
 
-![plot of chunk unnamed-chunk-2](figs/unnamed-chunk-2-1.png)
+![plot of chunk steps_per_interval](figure/steps_per_interval-1.png)
 
-Which interval contains max of number of steps
+####Which interval contains max of number of steps
 
 ```r
 ind <- which.max(steps_per_interval$steps)
@@ -132,7 +122,7 @@ Answer
 Interval: 835, Steps: 206  
 
   
-Imputing missing values
+###Imputing missing values
 
 
 ```r
@@ -145,8 +135,9 @@ count_na
 ```
 
 Selected strategy: replace NAs with mean(steps) per interval accross all days  
-We already have the dataset steps_per_interval.  
-We will merge the original data frame with steps_per_interval (outer join)  
+We already have the dataset steps_per_interval.
+
+####Merge the original data frame with steps_per_interval (outer join)  
 
 ```r
 activity_mrg <- merge(activity, steps_per_interval, 
@@ -155,14 +146,14 @@ activity_mrg <- merge(activity, steps_per_interval,
                       all = TRUE)
 ```
 
-Now, we replace NAs in steps.x with values of steps.y
+####Now, we replace NAs in steps.x with values of steps.y
 
 ```r
 activity_mrg$steps.x[which(is.na(activity_mrg$steps.x))] <-
         activity_mrg$steps.y[which(is.na(activity_mrg$steps.x))]
 ```
 
-Histogram of sum of steps per day
+####Histogram of sum of steps per day
 
 ```r
 steps_per_day_mrg <- aggregate(steps.x ~ date, activity_mrg, sum)
@@ -175,9 +166,9 @@ ggplot(steps_per_day_mrg, aes(x = steps.x)) +
              theme_bw()
 ```
 
-![plot of chunk unnamed-chunk-7](figs/unnamed-chunk-7-1.png)
+![plot of chunk sum of steps per day](figure/sum of steps per day-1.png)
 
-Calculate mean and median with NAs filled
+####Calculate mean and median with NAs filled
 
 ```r
 steps_mean_fill <- mean(steps_per_day_mrg$steps.x)
@@ -186,19 +177,20 @@ steps_mean <- steps_mean
 steps_median <- steps_median
 ```
 
-After filling NAs:  
+#####After filling NAs:  
 Mean fill =  10766.1886792453  
 Median fill = 10766.1886792453  
-Before filling NAs:  
+
+#####Before filling NAs:  
 Mean =  10766.1886792453  
 Median = 10765  
   
 Answer: After filling missing values, mean value remains unchanged and median matches the value of mean.  
   
   
-Are there differences in activity patterns between weekdays and weekends?
+###Are there differences in activity patterns between weekdays and weekends?
  
-Add a factor column daytype to distinguish between weekdays and weekends  
+####Add a factor column daytype to distinguish between weekdays and weekends  
 Use isWekend() function from timeDate library
 
 ```r
@@ -209,7 +201,7 @@ activity_day$daytype <- factor(isWeekend(as.Date(activity$date)),
                                labels = c("weekday", "weekend"))
 ```
 
-Aggregate number of steps per interval and daytype
+####Aggregate number of steps per interval and daytype
 
 ```r
 steps_per_interval_daytype <- aggregate(steps ~ interval + daytype, 
@@ -217,7 +209,7 @@ steps_per_interval_daytype <- aggregate(steps ~ interval + daytype,
                                 FUN = mean)
 ```
 
-Line plot with facets
+####Line plot of steps per interval with facets weekday and weekend
 
 ```r
 ggplot(steps_per_interval_daytype, aes(x = interval, y = steps)) +
@@ -227,7 +219,7 @@ ggplot(steps_per_interval_daytype, aes(x = interval, y = steps)) +
         theme_bw()
 ```
 
-![plot of chunk unnamed-chunk-11](figs/unnamed-chunk-11-1.png)
+![plot of chunk steps per interval daytype](figure/steps per interval daytype-1.png)
 
 Answer: There is one significant peak of steps during the weekday, probably
 related to work activities. During the weekend there is a better distribution
